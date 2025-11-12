@@ -762,7 +762,7 @@ export async function handleUpdateWorkflow(
 
     // Track successful mutation
     if (workflowBefore) {
-      await trackWorkflowMutationForFullUpdate({
+      trackWorkflowMutationForFullUpdate({
         sessionId,
         toolName: 'n8n_update_full_workflow',
         userIntent,
@@ -771,7 +771,9 @@ export async function handleUpdateWorkflow(
         workflowAfter: workflow,
         mutationSuccess: true,
         durationMs: Date.now() - startTime,
-      }).catch(err => logger.debug('Failed to track mutation telemetry:', err));
+      }).catch(err => {
+        logger.warn('Failed to track mutation telemetry:', err);
+      });
     }
 
     return {
@@ -782,7 +784,7 @@ export async function handleUpdateWorkflow(
   } catch (error) {
     // Track failed mutation
     if (workflowBefore) {
-      await trackWorkflowMutationForFullUpdate({
+      trackWorkflowMutationForFullUpdate({
         sessionId,
         toolName: 'n8n_update_full_workflow',
         userIntent,
@@ -792,7 +794,9 @@ export async function handleUpdateWorkflow(
         mutationSuccess: false,
         mutationError: error instanceof Error ? error.message : 'Unknown error',
         durationMs: Date.now() - startTime,
-      }).catch(err => logger.debug('Failed to track mutation telemetry:', err));
+      }).catch(err => {
+        logger.warn('Failed to track mutation telemetry for failed operation:', err);
+      });
     }
 
     if (error instanceof z.ZodError) {

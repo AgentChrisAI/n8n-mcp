@@ -291,7 +291,7 @@ export async function handleUpdatePartialWorkflow(
 
       // Track successful mutation
       if (workflowBefore && !input.validateOnly) {
-        await trackWorkflowMutation({
+        trackWorkflowMutation({
           sessionId,
           toolName: 'n8n_update_partial_workflow',
           userIntent: input.intent || 'Partial workflow update',
@@ -300,7 +300,14 @@ export async function handleUpdatePartialWorkflow(
           workflowAfter: finalWorkflow,
           mutationSuccess: true,
           durationMs: Date.now() - startTime,
-        }).catch(err => logger.debug('Failed to track mutation telemetry:', err));
+        }).catch(err => {
+          logger.warn('Failed to track mutation telemetry:', err);
+          logger.debug('Mutation data that failed:', {
+            sessionId,
+            intent: input.intent,
+            operationCount: input.operations.length
+          });
+        });
       }
 
       return {
@@ -321,7 +328,7 @@ export async function handleUpdatePartialWorkflow(
     } catch (error) {
       // Track failed mutation
       if (workflowBefore && !input.validateOnly) {
-        await trackWorkflowMutation({
+        trackWorkflowMutation({
           sessionId,
           toolName: 'n8n_update_partial_workflow',
           userIntent: input.intent || 'Partial workflow update',
@@ -331,7 +338,9 @@ export async function handleUpdatePartialWorkflow(
           mutationSuccess: false,
           mutationError: error instanceof Error ? error.message : 'Unknown error',
           durationMs: Date.now() - startTime,
-        }).catch(err => logger.debug('Failed to track mutation telemetry:', err));
+        }).catch(err => {
+          logger.warn('Failed to track mutation telemetry for failed operation:', err);
+        });
       }
 
       if (error instanceof N8nApiError) {

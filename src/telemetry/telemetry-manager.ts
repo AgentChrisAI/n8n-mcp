@@ -153,12 +153,21 @@ export class TelemetryManager {
    */
   async trackWorkflowMutation(data: any): Promise<void> {
     this.ensureInitialized();
-    if (!this.isEnabled()) return;
+    if (!this.isEnabled()) {
+      logger.debug('Telemetry disabled, skipping mutation tracking');
+      return;
+    }
 
     this.performanceMonitor.startOperation('trackWorkflowMutation');
     try {
       const { mutationTracker } = await import('./mutation-tracker.js');
       const userId = this.configManager.getUserId();
+
+      logger.debug('Tracking workflow mutation', {
+        userId,
+        intent: data.userIntent?.substring(0, 50),
+        operationCount: data.operations?.length
+      });
 
       const mutationRecord = await mutationTracker.processMutation(data, userId);
 
