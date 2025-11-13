@@ -1,39 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1763040232691,
+  "lastUpdate": 1763068524647,
   "repoUrl": "https://github.com/czlonkowski/n8n-mcp",
   "entries": {
     "n8n-mcp Benchmarks": [
-      {
-        "commit": {
-          "author": {
-            "email": "56956555+czlonkowski@users.noreply.github.com",
-            "name": "Romuald Członkowski",
-            "username": "czlonkowski"
-          },
-          "committer": {
-            "email": "noreply@github.com",
-            "name": "GitHub",
-            "username": "web-flow"
-          },
-          "distinct": true,
-          "id": "29b2b1d4c13407c8cf1446c1e4124429481c052c",
-          "message": "Merge pull request #303 from czlonkowski/feature/environment-aware-diagnostics\n\nfeat: Add environment-aware debugging to diagnostic tools",
-          "timestamp": "2025-10-10T14:43:25+02:00",
-          "tree_id": "360e6bdf0ac53bcdf5e4b29f45fda31d17cade28",
-          "url": "https://github.com/czlonkowski/n8n-mcp/commit/29b2b1d4c13407c8cf1446c1e4124429481c052c"
-        },
-        "date": 1760100300753,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "sample - array sorting - small",
-            "value": 0.0136,
-            "range": "0.3096",
-            "unit": "ms",
-            "extra": "73341 ops/sec"
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -1542,6 +1511,37 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/czlonkowski/n8n-mcp/commit/99c5907b71a6c3228d345a2f0879cd893f30cd7e"
         },
         "date": 1763040232425,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "sample - array sorting - small",
+            "value": 0.0136,
+            "range": "0.3096",
+            "unit": "ms",
+            "extra": "73341 ops/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "56956555+czlonkowski@users.noreply.github.com",
+            "name": "Romuald Członkowski",
+            "username": "czlonkowski"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "597bd290b69459c3b84bbd7cffc5e51c4aa0f28b",
+          "message": "fix: critical telemetry improvements for data quality and security (#421)\n\n* fix: critical telemetry improvements for data quality and security\n\nFixed three critical issues in workflow mutation telemetry:\n\n1. Fixed Inconsistent Sanitization (Security Critical)\n   - Problem: 30% of workflows unsanitized, exposing credentials/tokens\n   - Solution: Use robust WorkflowSanitizer.sanitizeWorkflowRaw()\n   - Impact: 100% sanitization with 17 sensitive patterns redacted\n   - Files: workflow-sanitizer.ts, mutation-tracker.ts\n\n2. Enabled Validation Data Capture (Data Quality)\n   - Problem: Zero validation metrics captured (all NULL)\n   - Solution: Add pre/post mutation validation with WorkflowValidator\n   - Impact: Measure mutation quality, track error resolution\n   - Non-blocking validation that captures errors/warnings\n   - Files: handlers-workflow-diff.ts\n\n3. Improved Intent Capture (Data Quality)\n   - Problem: 92.62% generic \"Partial workflow update\" intents\n   - Solution: Enhanced docs + automatic intent inference\n   - Impact: Meaningful intents auto-generated from operations\n   - Files: n8n-update-partial-workflow.ts, handlers-workflow-diff.ts\n\nExpected Results:\n- 100% sanitization coverage (up from 70%)\n- 100% validation capture (up from 0%)\n- 50%+ meaningful intents (up from 7.33%)\n\nVersion bumped to 2.22.17\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n\n* perf: implement validator instance caching to avoid redundant initialization\n\n- Add module-level cached WorkflowValidator instance\n- Create getValidator() helper to reuse validator across mutations\n- Update pre/post mutation validation to use cached instance\n- Avoids redundant NodeSimilarityService initialization on every mutation\n\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n\n* fix: restore backward-compatible sanitization with context preservation\n\nFixed CI test failures by updating WorkflowSanitizer to use pattern-specific\nplaceholders while maintaining backward compatibility:\n\nChanges:\n- Convert SENSITIVE_PATTERNS to PatternDefinition objects with specific placeholders\n- Update sanitizeString() to preserve context (Bearer prefix, URL paths)\n- Refactor sanitizeObject() to handle sensitive fields vs URL fields differently\n- Remove overly greedy field patterns that conflicted with token patterns\n\nPattern-specific placeholders:\n- [REDACTED_URL_WITH_AUTH] for URLs with credentials\n- [REDACTED_TOKEN] for long tokens (32+ chars)\n- [REDACTED_APIKEY] for OpenAI-style keys\n- Bearer [REDACTED] for Bearer tokens (preserves \"Bearer \" prefix)\n- [REDACTED] for generic sensitive fields\n\nTest Results:\n- All 13 mutation-tracker tests passing\n- URL with auth: preserves path after credentials\n- Long tokens: properly detected and marked\n- OpenAI keys: correctly identified\n- Bearer tokens: prefix preserved\n- Sensitive field names: generic redaction for non-URL fields\n\nFixes #421 CI failures\n\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n\n* fix: prevent double-redaction in workflow sanitizer\n\nAdded safeguard to stop pattern matching once a placeholder is detected,\npreventing token patterns from matching text inside placeholders like\n[REDACTED_URL_WITH_AUTH].\n\nAlso expanded database URL pattern to match full URLs including port and\npath, and updated test expectations to match context-preserving sanitization.\n\nFixes:\n- Database URLs now properly sanitized to [REDACTED_URL_WITH_AUTH]\n- Prevents [[REDACTED]] double-redaction issue\n- All 25 workflow-sanitizer tests passing\n- No regression in mutation-tracker tests\n\nConceived by Romuald Członkowski - www.aiadvisors.pl/en\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2025-11-13T22:13:31+01:00",
+          "tree_id": "0f995c2058dd6eb68594208e60197f562f9acd12",
+          "url": "https://github.com/czlonkowski/n8n-mcp/commit/597bd290b69459c3b84bbd7cffc5e51c4aa0f28b"
+        },
+        "date": 1763068523930,
         "tool": "customSmallerIsBetter",
         "benches": [
           {
