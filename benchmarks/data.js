@@ -1,39 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1763662852595,
+  "lastUpdate": 1763740254160,
   "repoUrl": "https://github.com/czlonkowski/n8n-mcp",
   "entries": {
     "n8n-mcp Benchmarks": [
-      {
-        "commit": {
-          "author": {
-            "email": "56956555+czlonkowski@users.noreply.github.com",
-            "name": "Romuald Członkowski",
-            "username": "czlonkowski"
-          },
-          "committer": {
-            "email": "noreply@github.com",
-            "name": "GitHub",
-            "username": "web-flow"
-          },
-          "distinct": true,
-          "id": "e11a885b0d886dfca9ad3648c339fb33fa5581cb",
-          "message": "Merge pull request #312 from czlonkowski/feature/session-persistence-phase-1\n\nfeat: Complete Session Persistence Implementation - v2.19.0 (All Phases)",
-          "timestamp": "2025-10-12T21:51:33+02:00",
-          "tree_id": "a954a09aff7e8ba8cb84afd8109d1e9f3fced2dd",
-          "url": "https://github.com/czlonkowski/n8n-mcp/commit/e11a885b0d886dfca9ad3648c339fb33fa5581cb"
-        },
-        "date": 1760298818707,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "sample - array sorting - small",
-            "value": 0.0136,
-            "range": "0.3096",
-            "unit": "ms",
-            "extra": "73341 ops/sec"
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -1542,6 +1511,37 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/czlonkowski/n8n-mcp/commit/fc37907348692bf46ff60286354677a59bfa98f8"
         },
         "date": 1763662852189,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "sample - array sorting - small",
+            "value": 0.0136,
+            "range": "0.3096",
+            "unit": "ms",
+            "extra": "73341 ops/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "56956555+czlonkowski@users.noreply.github.com",
+            "name": "Romuald Członkowski",
+            "username": "czlonkowski"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "717d6f927fd863f82b5ecd23b56e01acc6835872",
+          "message": "Release v2.23.0: Type Structure Validation (Phases 1-4) (#434)\n\n* feat: implement Phase 1 - Type Structure Definitions\n\nPhase 1 Complete: Type definitions and service layer for all 22 n8n NodePropertyTypes\n\nNew Files:\n- src/types/type-structures.ts (273 lines)\n  * TypeStructure and TypePropertyDefinition interfaces\n  * Type guards: isComplexType, isPrimitiveType, isTypeStructure\n  * ComplexPropertyType and PrimitivePropertyType unions\n\n- src/constants/type-structures.ts (677 lines)\n  * Complete definitions for all 22 NodePropertyTypes\n  * Structures for complex types (filter, resourceMapper, etc.)\n  * COMPLEX_TYPE_EXAMPLES with real-world usage patterns\n\n- src/services/type-structure-service.ts (441 lines)\n  * Static service class with 15 public methods\n  * Type querying, validation, and metadata access\n  * No database dependencies (code-only constants)\n\n- tests/unit/types/type-structures.test.ts (14 tests)\n- tests/unit/constants/type-structures.test.ts (39 tests)\n- tests/unit/services/type-structure-service.test.ts (64 tests)\n\nModified Files:\n- src/types/index.ts - Export new type-structures module\n\nTest Results:\n- 117 tests passing (100% pass rate)\n- 99.62% code coverage (exceeds 90% target)\n- Zero breaking changes\n\nKey Features:\n- Complete coverage of all 22 n8n NodePropertyTypes\n- Real-world examples from actual workflows\n- Validation infrastructure ready for Phase 2 integration\n- Follows project patterns (static services, type guards)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n* feat: implement Phase 2 type structure validation integration\n\nIntegrates TypeStructureService into EnhancedConfigValidator to validate\ncomplex property types (filter, resourceMapper, assignmentCollection,\nresourceLocator) against their expected structures.\n\n**Changes:**\n\n1. Enhanced Config Validator (src/services/enhanced-config-validator.ts):\n   - Added `properties` parameter to `addOperationSpecificEnhancements()`\n   - Implemented `validateSpecialTypeStructures()` - detects and validates special types\n   - Implemented `validateComplexTypeStructure()` - deep validation for each type\n   - Implemented `validateFilterOperations()` - validates filter operator/operation pairs\n\n2. Test Coverage (tests/unit/services/enhanced-config-validator-type-structures.test.ts):\n   - 23 comprehensive test cases\n   - Filter validation: combinator, conditions, operation compatibility\n   - ResourceMapper validation: mappingMode values\n   - AssignmentCollection validation: assignments array structure\n   - ResourceLocator validation: mode and value fields (3 tests skipped for debugging)\n\n**Validation Features:**\n- ✅ Filter: Validates combinator ('and'/'or'), conditions array, operator types\n- ✅ Filter Operations: Type-specific operation validation (string, number, boolean, dateTime, array)\n- ✅ ResourceMapper: Validates mappingMode ('defineBelow'/'autoMapInputData')\n- ✅ AssignmentCollection: Validates assignments array presence and type\n- ⚠️ ResourceLocator: Basic validation (needs debugging - 3 tests skipped)\n\n**Test Results:**\n- 20/23 new tests passing (87% success rate)\n- 97+ existing tests still passing\n- ZERO breaking changes\n\n**Next Steps:**\n- Debug resourceLocator test failures\n- Integrate structure definitions into MCP tools (getNodeEssentials, getNodeInfo)\n- Update tools documentation\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n* fix: add type guard for condition.operator in validateFilterOperations\n\nAddresses code review warning W1 by adding explicit type checking\nfor condition.operator before accessing its properties.\n\nThis prevents potential runtime errors if operator is not an object.\n\n**Change:**\n- Added `typeof condition.operator !== 'object'` check in validateFilterOperations\n\n**Impact:**\n- More robust validation\n- Prevents edge case runtime errors\n- All tests still passing (20/23)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n* feat: complete Phase 3 real-world type structure validation\n\nImplemented and validated type structure definitions against 91 real-world\nworkflow templates from n8n.io with 100% pass rate.\n\n**Validation Results:**\n- Pass Rate: 100% (target: >95%) ✅\n- False Positive Rate: 0% (target: <5%) ✅\n- Avg Validation Time: 0.01ms (target: <50ms) ✅\n- Templates Tested: 91 templates, 616 nodes, 776 validations\n\n**Changes:**\n\n1. Filter Operations Enhancement (enhanced-config-validator.ts)\n   - Added exists, notExists, isNotEmpty operations to all filter types\n   - Fixed 6 validation errors for field existence checks\n   - Operations now match real-world n8n workflow usage\n\n2. Google Sheets Node Validator (node-specific-validators.ts)\n   - Added validateGoogleSheets() to filter credential-provided fields\n   - Removes false positives for sheetId (comes from credentials at runtime)\n   - Fixed 113 validation errors (91% of all failures)\n\n3. Phase 3 Validation Script (scripts/test-structure-validation.ts)\n   - Loads and validates top 100 templates by popularity\n   - Tests filter, resourceMapper, assignmentCollection, resourceLocator types\n   - Generates detailed statistics and error reports\n   - Supports compressed workflow data (gzip + base64)\n\n4. npm Script (package.json)\n   - Added test:structure-validation script using tsx\n\nAll success criteria met for Phase 3 real-world validation.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n* fix: resolve duplicate validateGoogleSheets function (CRITICAL)\n\nFixed build-breaking duplicate function implementation found in code review.\n\n**Issue:**\n- Two validateGoogleSheets() implementations at lines 234 and 1717\n- Caused TypeScript compilation error: TS2393 duplicate function\n- Blocked all builds and deployments\n\n**Solution:**\n- Merged both implementations into single function at line 234\n- Removed sheetId validation check (comes from credentials)\n- Kept all operation-specific validation logic\n- Added error filtering at end to remove credential-provided field errors\n- Maintains 100% pass rate on Phase 3 validation (776/776 validations)\n\n**Validation Confirmed:**\n- TypeScript compilation: ✅ Success\n- Phase 3 validation: ✅ 100% pass rate maintained\n- All 4 special types: ✅ 100% pass rate (filter, resourceMapper, assignmentCollection, resourceLocator)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n* feat: complete Phase 3 real-world validation with 100% pass rate\n\nPhase 3: Real-World Type Structure Validation - COMPLETED\n\nResults:\n- 91 templates tested (616 nodes with special types)\n- 776 property validations performed\n- 100.00% pass rate (776/776 passed)\n- 0.00% false positive rate\n- 0.01ms average validation time (500x better than 50ms target)\n\nType-specific results:\n- filter: 93/93 passed (100.00%)\n- resourceMapper: 69/69 passed (100.00%)\n- assignmentCollection: 213/213 passed (100.00%)\n- resourceLocator: 401/401 passed (100.00%)\n\nChanges:\n- Add scripts/test-structure-validation.ts for standalone validation\n- Add integration test suite for real-world structure validation\n- Update implementation plan with Phase 3 completion details\n- All success criteria exceeded (>95% pass rate, <5% FP, <50ms)\n\nEdge cases fixed:\n- Filter operations: Added exists, notExists, isNotEmpty support\n- Google Sheets: Properly handle credential-provided fields\n\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n* feat: complete Phase 4 documentation and polish\n\nPhase 4: Documentation & Polish - COMPLETED\n\nChanges:\n- Created docs/TYPE_STRUCTURE_VALIDATION.md (239 lines) - comprehensive technical reference\n- Updated CLAUDE.md with Phase 1-3 completion and architecture updates\n- Added minimal structure validation notes to tools-documentation.ts (progressive discovery)\n\nDocumentation approach:\n- Separate brief technical reference file (no README bloat)\n- Minimal one-line mentions in tools documentation\n- Comprehensive internal documentation (CLAUDE.md)\n- Respects progressive discovery principle\n\nAll Phase 1-4 complete:\n- Phase 1: Type Structure Definitions ✅\n- Phase 2: Validation Integration ✅\n- Phase 3: Real-World Validation ✅ (100% pass rate)\n- Phase 4: Documentation & Polish ✅\n\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n* fix: correct line counts and dates in Phase 4 documentation\n\nCode review feedback fixes:\n\n1. Fixed line counts in TYPE_STRUCTURE_VALIDATION.md:\n   - Type Definitions: 273 → 301 lines (actual)\n   - Type Structures: 677 → 741 lines (actual)\n   - Service Layer: 441 → 427 lines (actual)\n\n2. Fixed completion dates:\n   - Changed from 2025-01-21 to 2025-11-21 (November, not January)\n   - Updated in both TYPE_STRUCTURE_VALIDATION.md and CLAUDE.md\n\n3. Enhanced filter example:\n   - Added rightValue field for completeness\n   - Example now shows complete filter condition structure\n\nAll corrections per code-reviewer agent feedback.\n\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n* chore: release v2.23.0 - Type Structure Validation (Phases 1-4)\n\nVersion bump from 2.22.21 to 2.23.0 (minor version bump for new backwards-compatible feature)\n\nChanges:\n- Comprehensive CHANGELOG.md entry documenting all 4 phases\n- Version bumped in package.json, package.runtime.json, package-lock.json\n- Database included (consistent with release pattern)\n\nType Structure Validation Feature (v2.23.0):\n- Phase 1: 22 complete type structures defined\n- Phase 2: Validation integrated in all MCP tools\n- Phase 3: 100% pass rate on 776 real-world validations (91 templates, 616 nodes)\n- Phase 4: Documentation and polish completed\n\nKey Metrics:\n- 100% pass rate on 776 validations\n- 0.01ms average validation time (500x faster than target)\n- 0% false positive rate\n- Zero breaking changes (100% backward compatible)\n- Automatic, zero-configuration operation\n\nSemantic Versioning:\n- Minor version bump (2.22.21 → 2.23.0) for new backwards-compatible feature\n- No breaking changes\n- All existing functionality preserved\n\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n* fix: update tests for Type Structure Validation improvements in v2.23.0\n\nCI test failures fixed for Type Structure Validation:\n\n1. Google Sheets validator test (node-specific-validators.test.ts:313-328)\n   - Test now expects 'range' error instead of 'sheetId' error\n   - sheetId is credential-provided and excluded from configuration validation\n   - Validation correctly prioritizes user-provided fields\n\n2. If node workflow validation test (workflow-fixed-collection-validation.test.ts:164-178)\n   - Test now expects 3 errors instead of 1\n   - Type Structure Validation catches multiple filter structure errors:\n     * Missing combinator field\n     * Missing conditions field\n     * Invalid nested structure (conditions.values)\n   - Comprehensive error detection is correct behavior\n\nBoth tests now correctly verify the improved validation behavior introduced in the Type Structure Validation system (v2.23.0).\n\nConceived by Romuald Członkowski - https://www.aiadvisors.pl/en\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2025-11-21T16:48:49+01:00",
+          "tree_id": "02e9112a0f58ca917879449878d2e26c54cb1452",
+          "url": "https://github.com/czlonkowski/n8n-mcp/commit/717d6f927fd863f82b5ecd23b56e01acc6835872"
+        },
+        "date": 1763740253885,
         "tool": "customSmallerIsBetter",
         "benches": [
           {
